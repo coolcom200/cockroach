@@ -1669,6 +1669,13 @@ Note that the measurement does not include the duration for replicating the eval
 		Measurement: "Flush Utilization",
 		Unit:        metric.Unit_PERCENT,
 	}
+
+	metaPebbleFsyncLatency = metric.Metadata{
+		Name:        "pebble.fsync.latency",
+		Help:        "The pebble write ahead log writer fsync latency",
+		Measurement: "Fsync Latency",
+		Unit:        metric.Unit_NANOSECONDS,
+	}
 )
 
 // StoreMetrics is the set of metrics for a given store.
@@ -1965,6 +1972,7 @@ type StoreMetrics struct {
 	ReplicaWriteBatchEvaluationLatency *metric.Histogram
 
 	FlushUtilization *metric.GaugeFloat64
+	FsyncLatency     *metric.Histogram
 }
 
 type tenantMetricsRef struct {
@@ -2503,6 +2511,7 @@ func newStoreMetrics(histogramWindow time.Duration) *StoreMetrics {
 			metaReplicaWriteBatchEvaluationLatency, histogramWindow, metric.IOLatencyBuckets,
 		),
 		FlushUtilization: metric.NewGaugeFloat64(metaPebbleFlushUtilization),
+		FsyncLatency:     metric.NewHistogram(metaPebbleFsyncLatency, histogramWindow, metric.IOLatencyBuckets),
 	}
 
 	{
